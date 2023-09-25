@@ -6,6 +6,14 @@ function get_trial_timestamps(epd::EPD; start_code::I, end_code::I, trial_nr::I,
     start_idx = findnext(x -> x == start_code, events[:, 2], trial_start)
     end_idx = findnext(x -> x == end_code, events[:, 2], trial_start)
     
+    isnothing(start_idx) && throw("ERROR: Start code `$(start_code)` in trial nr. $(trial_nr) does not exist!")
+    
+    next_trial_start = findnext(x -> x == trial_start_code, events[:, 2], trial_start+1)
+    
+    if isnothing(end_idx) || end_idx > next_trial_start
+    	throw("ERROR: End code `$(end_code)` in trial nr. $(trial_nr) does not exist!")
+    end
+    
     if events[start_idx, 1] > events[end_idx, 1]
         throw("ERROR: for codes `$(start_code)` and `$(end_code)` in trial nr. $(trial_nr): starting timestamp ($(events[start_idx, 1])) > ending timestamp ($(events[end_idx, 1]))")
     end
